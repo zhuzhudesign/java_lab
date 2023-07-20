@@ -1,0 +1,37 @@
+server:
+  port: 9527
+spring:
+  application:
+    name: cloud-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: payment_routh
+          #uri: http://localhost:8007
+          uri: lb://cloud-provider-hystrix-payment
+          predicates:
+            - Path=/payment/lb/**
+            - After=2023-07-18T11:43:21.949214+08:00[Asia/Shanghai]
+            - Cookie=username,larry
+            - Header=Param-Id,1234
+            - Method=GET
+          filters:
+            - AddRequestParameter=Param-Id,1234
+        - id: payment_routh2
+          #uri: http://localhost:8007
+          uri: lb://cloud-provider-hystrix-payment
+          predicates:
+            - Path=/payment/hystrix/ok/**
+            - Header=Param-Id:1234
+
+eureka:
+  instance:
+    hostname: cloud-gateway-service
+  client:
+    service-url:
+      register-with-eureka: true
+      fetch-registry: true
+      defaultZone: http://eureka7001.com:7001/eureka,http://localhost:7002/eureka
